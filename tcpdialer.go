@@ -138,6 +138,10 @@ type TCPDialer struct {
 	// If nil, a local address is automatically chosen.
 	LocalAddr *net.TCPAddr
 
+	// LocalAddrFunc is the local address function to create a LocalAddr.
+	// If nil, a local address is automatically chosen.
+	LocalAddrFunc func() *net.TCPAddr
+
 	// This may be used to override DNS resolving policy, like this:
 	// var dialer = &fasthttp.TCPDialer{
 	// 	Resolver: &net.Resolver{
@@ -341,6 +345,9 @@ func (d *TCPDialer) tryDial(
 	dialer := net.Dialer{}
 	if d.LocalAddr != nil {
 		dialer.LocalAddr = d.LocalAddr
+	}
+	if d.LocalAddrFunc != nil {
+		dialer.LocalAddr = d.LocalAddrFunc()
 	}
 
 	ctx, cancelCtx := context.WithDeadline(context.Background(), deadline)
